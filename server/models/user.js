@@ -20,6 +20,11 @@ const userSchema = new Schema(
       min: 6,
       max: 64
     },
+    // isPaid: {
+    //   type: Boolean,
+    //   required: true,
+    //   default: false
+    // },
     secret: {
       type: String,
       required: true
@@ -29,6 +34,7 @@ const userSchema = new Schema(
     following: [{ type: Schema.ObjectId, ref: 'User' }],
     followers: [{ type: Schema.ObjectId, ref: 'User' }]
   },
+
   {
     timestamps: true
   }

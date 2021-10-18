@@ -14,7 +14,7 @@ export const register = async (req, res) => {
   const exist = await User.findOne({ email });
   if (exist) return res.status(400).send('Email is taken !!!');
 
-  //hashpassword
+  //hash password
   const hashedPassword = await hashPassword(password);
 
   const user = new User({
@@ -58,5 +58,15 @@ export const login = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(404).send('Error. Try Again.');
+  }
+};
+
+export const currentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (user) return res.status(200).json({ ok: true });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(400);
   }
 };
