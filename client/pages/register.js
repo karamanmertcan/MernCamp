@@ -34,12 +34,17 @@ const Register = () => {
         password: input.password,
         secret: input.secret
       });
-      setValue('name', '');
-      setValue('email', '');
-      setValue('password', '');
-      setValue('secret', '');
-      setOk(data.ok);
-      setLoading(false);
+      if (data.error) {
+        toast.error(data.error);
+        setLoading(false);
+      } else {
+        setValue('name', '');
+        setValue('email', '');
+        setValue('password', '');
+        setValue('secret', '');
+        setOk(data.ok);
+        setLoading(false);
+      }
     } catch (error) {
       toast.error(error.response.data);
       setLoading(false);
