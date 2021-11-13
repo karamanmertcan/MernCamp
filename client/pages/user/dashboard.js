@@ -1,9 +1,10 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { UserContext } from '../../context';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import UserRoute from '../../components/routes/UserRoute';
+import PostList from '../../components/cards/PostList';
 import CreatePostForm from '../../components/forms/CreatePostForm';
 
 const Home = () => {
@@ -12,9 +13,27 @@ const Home = () => {
   const [content, setContent] = useState('');
   const [image, setImage] = useState({});
   const [uploading, setUploading] = useState(false);
+  const [posts, setPosts] = useState([]);
 
   //router
   const router = useRouter();
+
+  useEffect(() => {
+    //
+    if (state && state.token) {
+      fetchUserPosts();
+    }
+  }, [state && state.token]);
+
+  const fetchUserPosts = async () => {
+    try {
+      const { data } = await axios.get('/user-posts');
+      // console.log('User post => ', data);
+      setPosts(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -30,6 +49,7 @@ const Home = () => {
       if (data.error) {
         toast.error(data.error);
       } else {
+        fetchUserPosts();
         toast.success('Post created');
         setContent('');
         setImage({});
@@ -60,15 +80,15 @@ const Home = () => {
   };
   return (
     <UserRoute>
-      <div className="container-fluid">
-        <div className="row py-5  text-light bg-default-image">
-          <div className="col text-center">
+      <div className='container-fluid'>
+        <div className='row py-5  text-light bg-default-image'>
+          <div className='col text-center'>
             <h1>Newsfeed</h1>
           </div>
         </div>
 
-        <div className="row py-3">
-          <div className="col-md-8">
+        <div className='row py-3'>
+          <div className='col-md-8'>
             <CreatePostForm
               onSubmit={onSubmit}
               content={content}
@@ -77,8 +97,10 @@ const Home = () => {
               uploading={uploading}
               image={image}
             />
+            <br />
+            <PostList posts={posts} />
           </div>
-          <div className="col-md-4">Sidebar</div>
+          <div className='col-md-4'>Sidebar</div>
         </div>
       </div>
     </UserRoute>
