@@ -13,7 +13,7 @@ import PostImage from '../images/PostImage';
 import { UserContext } from '../../context';
 import { useRouter } from 'next/router';
 
-const PostList = ({ posts }) => {
+const PostList = ({ posts, handleDelete }) => {
   const [state] = useContext(UserContext);
   const router = useRouter();
   return (
@@ -56,7 +56,7 @@ const PostList = ({ posts }) => {
                 {state && state.user && state.user._id === post.postedBy._id && (
                   <>
                     <EditOutlined
-                      onClick={() => router.push(`/user/post/${post._id}`)}
+                      onClick={() => router.push(`/user/post/${post}`)}
                       className='text-danger pt-2 h5 px-2'
                       style={{
                         marginLeft: '2rem',
@@ -64,6 +64,7 @@ const PostList = ({ posts }) => {
                       }}
                     />
                     <DeleteOutlined
+                      onClick={() => handleDelete(post)}
                       className='text-danger pt-2 h5 px-2'
                       style={{
                         marginLeft: '2rem'

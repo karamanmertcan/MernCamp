@@ -6,7 +6,7 @@ import { Avatar } from 'antd';
 // import ReactQuill from 'react-quill'; // ES6
 import 'react-quill/dist/quill.snow.css'; // ES6
 
-const CreatePostForm = ({ content, setContent, onSubmit, handleImage, uploading, image }) => {
+const PostForm = ({ content, setContent, onSubmit, handleImage, uploading, image }) => {
   return (
     <div className='card'>
       <div className='card-body pb-3'>
@@ -44,4 +44,4 @@ const CreatePostForm = ({ content, setContent, onSubmit, handleImage, uploading,
   );
 };
 
-export default CreatePostForm;
+export default PostForm;

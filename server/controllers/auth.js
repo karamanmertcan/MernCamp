@@ -1,6 +1,7 @@
 import User from '../models/user';
 import { hashPassword, comparePassword } from '../helpers/auth';
 import jwt from 'jsonwebtoken';
+import { nanoid } from 'nanoid';
 
 export const register = async (req, res) => {
   //   console.log('REGISTER ENDPPOINT => ', req.body);
@@ -23,7 +24,8 @@ export const register = async (req, res) => {
     email,
     name,
     password: hashedPassword,
-    secret
+    secret,
+    username: nanoid(6)
   });
 
   try {
@@ -103,5 +105,33 @@ export const forgotPassword = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.json({ error: 'Something went wrong. Try again !' });
+  }
+};
+
+export const profileUpdate = async (req, res) => {
+  try {
+    // console.log('profile update', req.body);
+    const data = {};
+
+    if (req.body.username) data.username = req.body.username;
+    if (req.body.about) data.about = req.body.about;
+    if (req.body.name) data.name = req.body.name;
+    if (req.body.password) {
+      if (req.body.password.length < 6) {
+        return res.json({ error: 'Password is required and it should be at least 6 characters!' });
+      } else {
+        data.password = await hashPassword(req.body.password);
+      }
+    }
+    if (req.body.secret) data.secret = req.body.secret;
+
+    const user = await User.findByIdAndUpdate(req.user._id, data, { new: true });
+    console.log('profile updated user =>', user);
+    user.password = undefined;
+    user.secret = undefined;
+    res.json(user);
+  } catch (error) {
+    if (error.code === 11000) return res.json({ error: 'Duplicate username !' });
+    console.log(error);
   }
 };

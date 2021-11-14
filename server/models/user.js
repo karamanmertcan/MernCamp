@@ -20,14 +20,15 @@ const userSchema = new Schema(
       min: 6,
       max: 64
     },
-    // isPaid: {
-    //   type: Boolean,
-    //   required: true,
-    //   default: false
-    // },
+
     secret: {
       type: String,
       required: true
+    },
+    username: {
+      type: String,
+      required: true,
+      unique: true
     },
     about: {},
     photo: String,
