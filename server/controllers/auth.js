@@ -124,6 +124,7 @@ export const profileUpdate = async (req, res) => {
       }
     }
     if (req.body.secret) data.secret = req.body.secret;
+    if (req.body.image) data.image = req.body.image;
 
     const user = await User.findByIdAndUpdate(req.user._id, data, { new: true });
     console.log('profile updated user =>', user);
@@ -132,6 +133,92 @@ export const profileUpdate = async (req, res) => {
     res.json(user);
   } catch (error) {
     if (error.code === 11000) return res.json({ error: 'Duplicate username !' });
+    console.log(error);
+  }
+};
+
+export const findPeople = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    //user.following
+    let following = user.following;
+    following.push(req.user._id);
+    const people = await User.find({ _id: { $nin: following } })
+      .select('-password -secret')
+      .limit(10);
+    res.json(people);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const addFollower = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.body._id, {
+      $addToSet: {
+        followers: req.user._id
+      }
+    });
+    next();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const userFollow = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $addToSet: {
+          following: req.body._id
+        }
+      },
+      { new: true }
+    ).select('-password -secret');
+
+    res.json(user);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const userFollowing = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password -secret');
+    const following = await User.find({ _id: user.following }).limit(100);
+    res.json(following);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const removeFollower = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.body._id, {
+      $pull: {
+        followers: req.user._id
+      }
+    });
+    next();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const userUnfollow = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $pull: {
+          following: req.body._id
+        }
+      },
+      { new: true }
+    );
+    res.json(user);
+  } catch (error) {
     console.log(error);
   }
 };

@@ -44,7 +44,7 @@ const Login = () => {
         });
         // save a local storage
         window.localStorage.setItem('auth', JSON.stringify(data));
-        router.push('/');
+        router.push('/user/dashboard');
       }
     } catch (err) {
       toast.success(err.response.data);
@@ -52,17 +52,17 @@ const Login = () => {
     }
   };
 
-  if (state && state.token) router.push('/');
+  if (state && state.token) router.push('/user/dashboard');
   return (
-    <div className="container-fluid">
-      <div className="row py-5  text-light bg-default-image">
-        <div className="col text-center">
+    <div className='container-fluid'>
+      <div className='row py-5  text-light bg-default-image'>
+        <div className='col text-center'>
           <h1>Login</h1>
         </div>
       </div>
 
-      <div className="row py-5">
-        <div className="col-md-6 offset-md-3">
+      <div className='row py-5'>
+        <div className='col-md-6 offset-md-3'>
           <AuthForm
             handleSubmit={handleSubmit}
             onSubmit={onSubmit}
@@ -71,27 +71,27 @@ const Login = () => {
             isValid={isValid}
             setLoading={setLoading}
             loading={loading}
-            page="login"
+            page='login'
           />
         </div>
       </div>
 
-      <div className="row">
-        <div className="col">
-          <p className="text-center">
+      <div className='row'>
+        <div className='col'>
+          <p className='text-center'>
             Not yet registered ?{' '}
-            <Link href="/register">
+            <Link href='/register'>
               <a>Register</a>
             </Link>
           </p>
         </div>
       </div>
-      <div className="row">
-        <div className="col">
-          <p className="text-center">
+      <div className='row'>
+        <div className='col'>
+          <p className='text-center'>
             Forgot password ?{' '}
-            <Link href="/forgot-password">
-              <a className="text-danger">Forgot password</a>
+            <Link href='/forgot-password'>
+              <a className='text-danger'>Forgot password</a>
             </Link>
           </p>
         </div>

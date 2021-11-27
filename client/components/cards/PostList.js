@@ -12,8 +12,9 @@ import {
 import PostImage from '../images/PostImage';
 import { UserContext } from '../../context';
 import { useRouter } from 'next/router';
+import { imageSource } from '../../functions';
 
-const PostList = ({ posts, handleDelete }) => {
+const PostList = ({ posts, handleDelete, handleLike, handleUnlike }) => {
   const [state] = useContext(UserContext);
   const router = useRouter();
   return (
@@ -22,7 +23,9 @@ const PostList = ({ posts, handleDelete }) => {
         posts.map((post) => (
           <div key={post._id} className='card mb-5'>
             <div className='card-header'>
-              <Avatar size={40}>{post.postedBy.name.charAt(0)}</Avatar>{' '}
+              {/* <Avatar size={40}>{post.postedBy.name.charAt(0)}</Avatar>{' '}
+               */}
+              <Avatar size={40} src={imageSource(post.postedBy)} />
               <span
                 className='fw-bold pt-2 ml-3'
                 style={{
@@ -42,8 +45,18 @@ const PostList = ({ posts, handleDelete }) => {
             <div className='card-footer '>
               {post.image && <PostImage url={post.image.url} />}
               <div className='d-flex'>
-                <HeartOutlined className='text-danger pt-2 px-2 h5' />
-                <div className='pt-2 pl-3'>3 likes</div>
+                {post.likes.includes(state.user._id) ? (
+                  <HeartFilled
+                    onClick={() => handleUnlike(post._id)}
+                    className='text-danger pt-2 px-2 h5'
+                  />
+                ) : (
+                  <HeartOutlined
+                    onClick={() => handleLike(post._id)}
+                    className='text-danger pt-2 px-2 h5'
+                  />
+                )}
+                <div className='pt-2 pl-3'>{post.likes.length} likes</div>
                 <CommentOutlined
                   className='text-danger pt-2 h5 px-2'
                   style={{

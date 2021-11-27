@@ -1,11 +1,13 @@
 import { useContext, useState, useEffect } from 'react';
 import { UserContext } from '../../context';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import UserRoute from '../../components/routes/UserRoute';
 import PostList from '../../components/cards/PostList';
 import PostForm from '../../components/forms/PostForm';
+import People from '../../components/cards/People';
 
 const Home = () => {
   const [state, setState] = useContext(UserContext);
@@ -14,6 +16,7 @@ const Home = () => {
   const [image, setImage] = useState({});
   const [uploading, setUploading] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [people, setPeople] = useState([]);
 
   //router
   const router = useRouter();
@@ -21,15 +24,25 @@ const Home = () => {
   useEffect(() => {
     //
     if (state && state.token) {
-      fetchUserPosts();
+      newsFeed();
+      findPeople();
     }
   }, [state && state.token]);
 
-  const fetchUserPosts = async () => {
+  const newsFeed = async () => {
     try {
-      const { data } = await axios.get('/user-posts');
+      const { data } = await axios.get('/news-feed');
       // console.log('User post => ', data);
       setPosts(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const findPeople = async () => {
+    try {
+      const { data } = await axios.get('/find-people');
+      setPeople(data);
     } catch (error) {
       console.log(error);
     }
@@ -49,7 +62,7 @@ const Home = () => {
       if (data.error) {
         toast.error(data.error);
       } else {
-        fetchUserPosts();
+        newsFeed();
         toast.success('Post created');
         setContent('');
         setImage({});
@@ -85,7 +98,57 @@ const Home = () => {
       if (!answer) return;
       const { data } = await axios.delete(`/delete-post/${post._id}`);
       toast.error('Post deleted');
-      fetchUserPosts();
+      newsFeed();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleFollow = async (user) => {
+    // console.log('add this user to following', user);
+    try {
+      const { data } = await axios.put('/user-follow', {
+        _id: user._id
+      });
+      //update local storage updaet user keep the token
+      let auth = JSON.parse(localStorage.getItem('auth'));
+      auth.user = data;
+      localStorage.setItem('auth', JSON.stringify(auth));
+      setState({
+        ...state,
+        user: data
+      });
+
+      //update people list
+      newsFeed();
+      let filtered = people.filter((p) => p._id !== user._id);
+      setPeople(filtered);
+      //re render the post for feed
+      toast.success(`Following ${user.name}`);
+      console.log('handle follow response', data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleLike = async (_id) => {
+    try {
+      const { data } = await axios.put('/like-post', {
+        _id
+      });
+      newsFeed();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleUnlike = async (_id) => {
+    // console.log('Unlike this post => ', _id);
+    try {
+      const { data } = await axios.put('/unlike-post', {
+        _id
+      });
+      newsFeed();
     } catch (error) {
       console.log(error);
     }
@@ -110,9 +173,21 @@ const Home = () => {
               image={image}
             />
             <br />
-            <PostList posts={posts} handleDelete={handleDelete} />
+            <PostList
+              posts={posts}
+              handleDelete={handleDelete}
+              handleLike={handleLike}
+              handleUnlike={handleUnlike}
+            />
           </div>
-          <div className='col-md-4'>Sidebar</div>
+          <div className='col-md-4'>
+            {state && state.user && state.user.following && (
+              <Link href={`/user/following`}>
+                <a className='h6'>{state.user.following.length} Following</a>
+              </Link>
+            )}
+            <People people={people} handleFollow={handleFollow} />
+          </div>
         </div>
       </div>
     </UserRoute>
